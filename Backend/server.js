@@ -8,9 +8,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" })); // Explicit origin
+app.use(cors({ origin: "https://movielens18.web.app" })); // Explicit origin
 app.use(express.json());
-
 connectDB();
 
 app.use("/api/mylist", myListRoutes);
