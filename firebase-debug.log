@@ -1,0 +1,21 @@
+[debug] [2025-04-13T17:04:35.473Z] ----------------------------------------------------------------------
+[debug] [2025-04-13T17:04:35.479Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\madha\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-04-13T17:04:35.479Z] CLI Version:   14.1.0
+[debug] [2025-04-13T17:04:35.480Z] Platform:      win32
+[debug] [2025-04-13T17:04:35.480Z] Node Version:  v20.17.0
+[debug] [2025-04-13T17:04:35.480Z] Time:          Sun Apr 13 2025 22:34:35 GMT+0530 (India Standard Time)
+[debug] [2025-04-13T17:04:35.481Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-13T17:04:35.489Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-13T17:04:35.490Z] > authorizing via signed-in user (madhavasrinadh2004@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\madha\Web\MovieLens
+

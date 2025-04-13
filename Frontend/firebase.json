@@ -13,7 +13,11 @@
       }
     ]
   },
-  "re-writes": [
+  "rewrites": [
+    {
+      "source": "/__/auth/handler",
+      "function": "app"
+    },
     {
       "source": "**",
       "destination": "/index.html"

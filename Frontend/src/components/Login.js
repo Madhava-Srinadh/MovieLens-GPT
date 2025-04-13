@@ -91,10 +91,11 @@ const Login = () => {
   const oobCode = query.get("oobCode");
   const mode = query.get("mode");
 
+  // Updated redirectUrl logic based on current hostname
   const redirectUrl =
-    process.env.NODE_ENV === "production"
-      ? "https://movielens-gpt.onrender.com"
-      : "http://localhost:3000";
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://movieLens18.web.app";
 
   const clearInputs = useCallback(() => {
     const inputs = [
