@@ -49,7 +49,7 @@ const MovieDetails = ({ movie, onClose }) => {
         overview: movie.overview || "",
         release_date: movie.release_date || "",
       };
-      await axios.post("http://localhost:5000/api/mylist", {
+      await axios.post("https://movielens-gpt.onrender.com/api/mylist", {
         email: user.email,
         movie: movieData,
       });
@@ -65,9 +65,9 @@ const MovieDetails = ({ movie, onClose }) => {
     }
     try {
       await axios.delete(
-        `http://localhost:5000/api/mylist/${encodeURIComponent(user.email)}/${
-          movie.id
-        }`
+        `https://movielens-gpt.onrender.com/api/mylist/${encodeURIComponent(
+          user.email
+        )}/${movie.id}`
       );
       await safeFetchMyList();
     } catch (error) {

@@ -19,7 +19,9 @@ const useMyListMovies = (shouldFetch) => {
     setError(null);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/mylist/${encodeURIComponent(user.email)}`
+        `https://movielens-gpt.onrender.com/api/mylist/${encodeURIComponent(
+          user.email
+        )}`
       );
       setMyListMovies(response.data || []);
     } catch (err) {

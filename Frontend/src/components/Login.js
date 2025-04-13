@@ -185,7 +185,7 @@ const Login = () => {
 
     try {
       await sendPasswordResetEmail(auth, emailValue, {
-        url: "http://localhost:3000/",
+        url: "https://movielens-gpt.onrender.com",
       });
       setSuccessMessage("Check your email for the reset link.");
     } catch (error) {
@@ -297,7 +297,7 @@ const Login = () => {
         const user = userCredential.user;
 
         await sendEmailVerification(user, {
-          url: "http://localhost:3000/?mode=verifyEmail",
+          url: "https://movielens-gpt.onrender.com/?mode=verifyEmail",
         });
 
         setIsVerificationSent(true);
