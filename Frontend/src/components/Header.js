@@ -121,13 +121,16 @@ const Header = ({ setShowMyList, showMyList }) => {
         setNewPassword("");
       }, 2000);
     } catch (error) {
-      console.error("Update password error:", error);
+      console.error("Update password error:", error.code, error.message);
       switch (error.code) {
         case "auth/wrong-password":
           setError("Incorrect old password.");
           break;
         case "auth/too-many-requests":
           setError("Too many attempts. Try again later.");
+          break;
+        case "auth/requires-recent-login":
+          setError("Please sign in again to update your password.");
           break;
         default:
           setError("Failed to update password.");

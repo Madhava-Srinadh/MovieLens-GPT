@@ -29,6 +29,7 @@ const useAuth = () => {
   const navigate = useNavigate();
 
   const getErrorMessage = (error) => {
+    console.error("Firebase error:", error.code, error.message);
     switch (error.code) {
       case "auth/email-already-in-use":
         return "Email already registered.";
@@ -48,8 +49,12 @@ const useAuth = () => {
         return "Invalid link.";
       case "auth/requires-recent-login":
         return "Please sign in again to update profile.";
+      case "auth/network-request-failed":
+        return "Network error. Check your connection.";
+      case "auth/operation-not-allowed":
+        return "This operation is not enabled.";
       default:
-        return "An error occurred.";
+        return `Error: ${error.message || "An unexpected error occurred."}`;
     }
   };
 
@@ -86,17 +91,10 @@ const Login = () => {
   const oobCode = query.get("oobCode");
   const mode = query.get("mode");
 
-  // Debug state changes
-  useEffect(() => {
-    
-  }, [
-    authState,
-    isVerificationSent,
-    isVerified,
-    showUpdateProfile,
-    showForgotPassword,
-    showResetPassword,
-  ]);
+  const redirectUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://movielens-gpt.onrender.com"
+      : "http://localhost:3000";
 
   useEffect(() => {
     if (oobCode && mode === "verifyEmail") {
@@ -104,14 +102,13 @@ const Login = () => {
       applyActionCode(auth, oobCode)
         .then(() => {
           setIsVerified(true);
-          setIsVerificationSent(false); // Reset to show verified state
+          setIsVerificationSent(false);
           setAuthState("signUp");
           setError("");
-          setSuccessMessage("Verification is successful");
+          setSuccessMessage("Email verified successfully!");
           clearInputs();
         })
         .catch((error) => {
-          console.error("Verification error:", error);
           setError(getErrorMessage(error));
           setTimeout(() => {
             setAuthState("signIn");
@@ -127,15 +124,16 @@ const Login = () => {
       setError("");
       setSuccessMessage("");
       clearInputs();
-      verifyPasswordResetCode(auth, oobCode).catch((error) => {
-        console.error("Password reset error:", error);
-        setError(getErrorMessage(error));
-        setTimeout(() => {
-          setShowResetPassword(false);
-          setAuthState("signIn");
-          navigate("/");
-        }, 3000);
-      });
+      verifyPasswordResetCode(auth, oobCode)
+        .then(() => {})
+        .catch((error) => {
+          setError(getErrorMessage(error));
+          setTimeout(() => {
+            setShowResetPassword(false);
+            setAuthState("signIn");
+            navigate("/");
+          }, 3000);
+        });
     }
   }, [oobCode, mode, navigate, getErrorMessage]);
 
@@ -168,6 +166,24 @@ const Login = () => {
     clearInputs();
   };
 
+  const handleResendVerification = async () => {
+    if (!auth.currentUser) {
+      setError("No user is signed in. Please sign up again.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await sendEmailVerification(auth.currentUser, {
+        url: `${redirectUrl}?mode=verifyEmail`,
+      });
+      setSuccessMessage("Verification email resent. Check your inbox or spam.");
+    } catch (error) {
+      setError(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSendResetEmail = async (e) => {
     e.preventDefault();
     setError("");
@@ -185,12 +201,12 @@ const Login = () => {
 
     try {
       await sendPasswordResetEmail(auth, emailValue, {
-        url: "https://movielens-gpt.onrender.com",
+        url: redirectUrl,
       });
       setSuccessMessage("Check your email for the reset link.");
+      clearInputs();
     } catch (error) {
       setError(getErrorMessage(error));
-      console.error("Send reset email error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -219,6 +235,7 @@ const Login = () => {
     }
 
     try {
+      await verifyPasswordResetCode(auth, oobCode);
       await confirmPasswordReset(auth, oobCode, newPasswordValue);
       setSuccessMessage("Password reset successfully!");
       setTimeout(() => {
@@ -229,7 +246,6 @@ const Login = () => {
       }, 2000);
     } catch (error) {
       setError(getErrorMessage(error));
-      console.error("Reset password error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -252,7 +268,6 @@ const Login = () => {
       navigate("/browse");
     } catch (error) {
       setError(getErrorMessage(error));
-      console.error("Google sign-in error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -297,7 +312,7 @@ const Login = () => {
         const user = userCredential.user;
 
         await sendEmailVerification(user, {
-          url: "https://movielens-gpt.onrender.com/?mode=verifyEmail",
+          url: `${redirectUrl}?mode=verifyEmail`,
         });
 
         setIsVerificationSent(true);
@@ -321,7 +336,6 @@ const Login = () => {
       }
     } catch (error) {
       setError(getErrorMessage(error));
-      console.error("Auth error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -358,7 +372,6 @@ const Login = () => {
       setAuthState("signIn");
     } catch (error) {
       setError(getErrorMessage(error));
-      console.error("Update profile error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -425,10 +438,9 @@ const Login = () => {
               <p className="text-sm text-gray-400">
                 Didn’t receive it? Check spam or{" "}
                 <button
-                  onClick={() =>
-                    setSuccessMessage("Verification email resent.")
-                  }
+                  onClick={handleResendVerification}
                   className="text-red-500 hover:underline"
+                  disabled={isLoading}
                 >
                   resend
                 </button>
