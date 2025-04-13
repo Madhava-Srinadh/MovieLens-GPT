@@ -96,8 +96,27 @@ const Login = () => {
       ? "https://movielens-gpt.onrender.com"
       : "http://localhost:3000";
 
+  const clearInputs = useCallback(() => {
+    const inputs = [
+      email,
+      password,
+      confirmPassword,
+      fullName,
+      newEmail,
+      newPassword,
+      resetEmail,
+      resetPassword,
+      resetConfirmPassword,
+    ];
+    inputs.forEach((input) => {
+      if (input.current) input.current.value = "";
+    });
+  }, []);
+
   useEffect(() => {
-    if (oobCode && mode === "verifyEmail") {
+    if (!oobCode || !mode) return;
+
+    if (mode === "verifyEmail") {
       setIsLoading(true);
       applyActionCode(auth, oobCode)
         .then(() => {
@@ -116,7 +135,8 @@ const Login = () => {
           }, 3000);
         })
         .finally(() => setIsLoading(false));
-    } else if (oobCode && mode === "resetPassword") {
+    } else if (mode === "resetPassword") {
+      setIsLoading(true);
       setShowResetPassword(true);
       setShowForgotPassword(false);
       setAuthState("signIn");
@@ -133,26 +153,10 @@ const Login = () => {
             setAuthState("signIn");
             navigate("/");
           }, 3000);
-        });
+        })
+        .finally(() => setIsLoading(false));
     }
-  }, [oobCode, mode, navigate, getErrorMessage]);
-
-  const clearInputs = useCallback(() => {
-    const inputs = [
-      email,
-      password,
-      confirmPassword,
-      fullName,
-      newEmail,
-      newPassword,
-      resetEmail,
-      resetPassword,
-      resetConfirmPassword,
-    ];
-    inputs.forEach((input) => {
-      if (input.current) input.current.value = "";
-    });
-  }, []);
+  }, [oobCode, mode, navigate, getErrorMessage, clearInputs]);
 
   const toggleAuthState = () => {
     setAuthState(authState === "signIn" ? "signUp" : "signIn");
