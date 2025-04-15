@@ -84,14 +84,13 @@ const MainContainer = ({ showMyList }) => {
           {error && <p className="text-red-500 text-center mt-10">{error}</p>}
           {!loading && !error && (
             <>
-              {gptMovies && gptMovies.length > 0 && (
+              {!showMyList && gptMovies && gptMovies.length > 0 && (
                 <MoviePosters
                   movies={gptMovies}
                   onSelect={selectMovie}
                   categoryLabel="Based on Recent Query"
                 />
               )}
-
               {showMyList ? (
                 myListMovies && myListMovies.length > 0 ? (
                   <MoviePosters

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaSearch, FaList, FaHome } from "react-icons/fa";
+import { FaSearch, FaList, FaHome, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,8 +11,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
 import { addUser, removeUser } from "../utils/userSlice";
-import { PROFILE_ICON } from "../utils/constants";
-import { ReactSVG } from "react-svg";
 import useSearchMovie from "../hooks/useSearchMovie";
 import { setSelectedMovie } from "../utils/selectSlice";
 import { toggleShow } from "../utils/gptSlice";
@@ -43,9 +41,8 @@ const Header = ({ setShowMyList, showMyList }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        const { uid, email, emailVerified } = currentUser;
-        dispatch(addUser({ uid, email }));
-        if (emailVerified && window.location.pathname === "/") {
+        dispatch(addUser({ uid: currentUser.uid, email: currentUser.email }));
+        if (currentUser.emailVerified && window.location.pathname === "/") {
           navigate("/browse");
         }
       } else {
@@ -58,7 +55,7 @@ const Header = ({ setShowMyList, showMyList }) => {
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      fetchMovies();
+      if (searchValue) fetchMovies();
     }, 300);
     return () => clearTimeout(debounceTimer);
   }, [searchValue, fetchMovies]);
@@ -157,76 +154,99 @@ const Header = ({ setShowMyList, showMyList }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-gradient-to-b from-black/95 to-black/80 px-4 sm:px-8 md:px-12 py-5 flex items-center justify-between z-50 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-      <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
-        <div className="flex-shrink-0 relative z-10">
-          <ReactSVG
+    <header className="fixed top-0 left-0 w-full bg-black bg-opacity-70 px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between z-50 shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+      <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img
             src="/logo.svg"
-            className="hidden md:block w-40 fill-red-600 cursor-pointer hover:scale-105 hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] transition-all duration-300"
+            alt="MovieLens Logo"
+            className="hidden md:block w-48 cursor-pointer hover:scale-105 transition-all duration-300"
             onClick={() => user && navigate("/browse")}
-            aria-label="MovieLens Logo"
           />
           <img
             src="/M.svg"
             alt="MovieLens Logo"
-            className="block md:hidden w-12 h-12 cursor-pointer hover:scale-105 hover:shadow-[0_0_10px_rgba(239,68,68,0.6)] transition-all duration-300"
+            className="block md:hidden w-16 h-16 cursor-pointer hover:scale-105 transition-all duration-300"
             onClick={() => user && navigate("/browse")}
           />
         </div>
+
         {user && (
-          <div className="ml-5 flex items-center">
-            <button
-              onClick={handleToggle}
-              className="flex items-center gap-2 text-white text-sm md:text-base px-4 py-2 rounded-full bg-transparent border border-red-600/50 hover:bg-red-600/30 hover:border-red-600 hover:shadow-[0_0_12px_rgba(239,68,68,0.4)] transition-all duration-300"
-              aria-label={showMyList ? "Go to Home" : "Go to My List"}
-            >
-              {showMyList ? (
-                <FaHome className="text-red-500" />
-              ) : (
-                <FaList className="text-red-500" />
-              )}
-              <span className="hidden sm:inline">
-                {showMyList ? "Home" : "My List"}
-              </span>
-            </button>
-          </div>
+          <button
+            onClick={handleToggle}
+            className="flex items-center gap-2 text-white text-sm sm:text-base px-3 py-2 rounded-lg bg-gray-800 border border-gray-600"
+            aria-label={showMyList ? "Go to Home" : "Go to My List"}
+          >
+            {showMyList ? (
+              <FaHome className="text-red-500 text-lg" />
+            ) : (
+              <FaList className="text-red-500 text-lg" />
+            )}
+            <span className="hidden sm:inline">
+              {showMyList ? "Home" : "My List"}
+            </span>
+          </button>
         )}
       </div>
 
       {user && (
         <div
-          className="flex items-center gap-4 sm:gap-6 md:gap-8"
+          className="flex items-center gap-3 sm:gap-4 md:gap-5"
           ref={profileRef}
         >
+          {/* Search */}
           <div className="relative" ref={searchRef}>
-            <div className="flex items-center bg-gray-900/40 backdrop-blur-sm border border-gray-700/30 rounded-full px-4 py-2.5 transition-all duration-300 hover:bg-gray-900/60 hover:border-red-500/50">
-              <FaSearch className="text-gray-200" aria-hidden="true" />
+            <div
+              className={`flex items-center bg-gray-900/50 backdrop-blur-md border border-gray-600 rounded-full px-3 py-2 h-10 transition-all duration-300 ${
+                isSearching ? "w-40 sm:w-52 md:w-80" : "w-10 sm:w-48"
+              }`}
+            >
+              <FaSearch
+                className="text-gray-300 cursor-pointer"
+                onClick={() => setIsSearching(!isSearching)}
+                aria-label="Toggle search"
+              />
               <input
                 type="text"
-                className="bg-transparent text-white pl-3 focus:outline-none w-28 sm:w-36 md:w-64 placeholder-gray-300 transition-all duration-500 focus:w-36 sm:focus:w-48 md:focus:w-80"
+                className={`bg-transparent text-white pl-3 focus:outline-none placeholder-gray-400 text-sm sm:text-base ${
+                  isSearching ? "block" : "hidden sm:block"
+                }`}
                 placeholder="Search movies..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 onFocus={() => setIsSearching(true)}
                 aria-label="Search movies"
               />
+              {searchValue && (
+                <FaTimes
+                  className="text-gray-400 cursor-pointer"
+                  onClick={() => {
+                    setSearchValue("");
+                    setSearchResults([]);
+                  }}
+                  aria-label="Clear search"
+                />
+              )}
             </div>
             {searchResults.length > 0 && (
-              <div className="animate-fade-in absolute mt-3 w-72 sm:w-80 md:w-[28rem] max-h-[28rem] overflow-y-auto no-scrollbar bg-gray-900/90 backdrop-blur-md rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.7)] border border-gray-700/40">
+              <div className="absolute mt-2 w-60 sm:w-72 md:w-80 max-h-96 overflow-y-auto no-scrollbar bg-gray-900/90 backdrop-blur-md rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.6)] border border-gray-700/50 animate-fade-in">
                 {searchResults.map((movie) => (
                   <div
                     key={movie.id}
-                    className="flex items-center gap-4 p-4 hover:bg-gray-800/70 cursor-pointer transition-all duration-200"
+                    className="flex items-center gap-3 p-3 hover:bg-gray-800/70 cursor-pointer transition-all duration-200 focus:bg-gray-800/70 outline-none"
                     onClick={() => handleMovieSelect(movie)}
-                    role="button"
+                    role="option"
                     tabIndex={0}
+                    aria-selected="false"
+                    aria-label={`Select ${movie.title}`}
                   >
                     <img
                       src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
                       alt={movie.title}
-                      className="w-14 h-20 object-cover rounded-md shadow-sm"
+                      className="w-10 h-14 object-cover rounded-md"
                     />
-                    <span className="text-white text-sm md:text-base font-medium">
+                    <span className="text-white text-sm font-medium">
                       {movie.title}
                     </span>
                   </div>
@@ -235,55 +255,56 @@ const Header = ({ setShowMyList, showMyList }) => {
             )}
           </div>
 
+          {/* Bot Icon */}
           <Bot
             onClick={handleBotClick}
-            className={`w-8 h-8 text-white hover:text-red-500 hover:shadow-[0_0_12px_rgba(239,68,68,0.7)] cursor-pointer transition-all duration-300 hover:rotate-12 ${
-              isSearching ? "hidden sm:block" : ""
-            }`}
-            aria-label="Open GPT Search"
+            className="w-6 h-6 text-white cursor-pointer"
+            aria-label="Open AI Search"
+            title="AI Movie Finder"
           />
+
+          {/* Profile */}
           <div className="relative">
-            <img
-              className={`w-11 h-11 rounded-full cursor-pointer transition-all duration-300 hover:ring-2 hover:ring-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.6)] ${
-                isSearching ? "hidden sm:block" : ""
-              }`}
-              src={PROFILE_ICON}
-              alt="Profile"
+            <div
+              className="w-10 h-10 rounded-full cursor-pointer bg-blue-600 flex items-center justify-center text-white text-lg font-semibold hover:scale-105 transition-all duration-200"
               onClick={() => setShowProfileMenu((prev) => !prev)}
               aria-label="Toggle profile menu"
-            />
+              tabIndex={0}
+            >
+              {username[0]?.toUpperCase()}
+            </div>
             {showProfileMenu && (
-              <div className="animate-fade-in absolute top-16 right-0 w-72 bg-gray-900/90 backdrop-blur-md text-white p-6 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.7)] border border-gray-700/40">
-                <p className="text-xl font-bold tracking-tight">{username}</p>
-                <p className="text-sm text-gray-200 truncate mt-1">
+              <div className="absolute top-12 right-0 w-64 bg-gray-900/90 backdrop-blur-md text-white p-4 rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.6)] border border-gray-700/50 animate-fade-in">
+                <p className="text-base font-semibold">{username}</p>
+                <p className="text-xs text-gray-300 truncate mt-1">
                   {user?.email}
                 </p>
-                <hr className="border-gray-700/50 my-4" />
+                <hr className="border-gray-700/50 my-3" />
                 {!showUpdatePassword ? (
                   <>
                     <button
                       onClick={() => setShowUpdatePassword(true)}
-                      className="w-full bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)] transition-all duration-300 mb-3"
+                      className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-all duration-200"
                       aria-label="Update Password"
                     >
                       Update Password
                     </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)] transition-all duration-300"
+                      className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-all duration-200 mt-2"
                       aria-label="Sign Out"
                     >
                       Sign Out
                     </button>
                   </>
                 ) : (
-                  <form onSubmit={handleUpdatePassword} className="space-y-4">
+                  <form onSubmit={handleUpdatePassword} className="space-y-3">
                     <input
                       type="password"
                       placeholder="Old Password"
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
-                      className="w-full p-3 bg-gray-800/60 backdrop-blur-sm text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
+                      className="w-full p-2 bg-gray-800/70 backdrop-blur-sm text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm"
                       aria-label="Old Password"
                       required
                     />
@@ -292,46 +313,49 @@ const Header = ({ setShowMyList, showMyList }) => {
                       placeholder="New Password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full p-3 bg-gray-800/60 backdrop-blur-sm text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
+                      className="w-full p-2 bg-gray-800/70 backdrop-blur-sm text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm"
                       aria-label="New Password"
                       required
                     />
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)] transition-all duration-300 disabled:opacity-50 flex items-center justify-center"
+                      className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 flex items-center justify-center"
                       aria-label="Submit Password Update"
                     >
                       {isLoading ? (
-                        <svg
-                          className="animate-spin h-5 w-5 mr-2 text-white"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v8H4z"
-                          />
-                        </svg>
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 mr-2 text-white"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v8H4z"
+                            />
+                          </svg>
+                          Updating...
+                        </>
                       ) : (
                         "Update"
                       )}
                     </button>
                     {successMessage && (
-                      <p className="text-green-500 text-sm font-semibold">
+                      <p className="text-green-400 text-xs font-medium">
                         {successMessage}
                       </p>
                     )}
                     {error && (
-                      <p className="text-red-500 text-sm font-semibold">
+                      <p className="text-red-400 text-xs font-medium">
                         {error}
                       </p>
                     )}
@@ -344,7 +368,7 @@ const Header = ({ setShowMyList, showMyList }) => {
                         setError("");
                         setSuccessMessage("");
                       }}
-                      className="w-full text-red-400 hover:text-red-300 hover:underline text-sm transition-all duration-200"
+                      className="w-full text-gray-400 hover:text-gray-300 text-xs transition-all duration-200"
                       aria-label="Cancel Password Update"
                     >
                       Cancel

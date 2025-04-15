@@ -5,8 +5,8 @@ const VideoBackground = ({ videoKey, isMuted }) => {
       title="Movie Trailer"
       key={videoKey}
       src={`https://www.youtube.com/embed/${videoKey}?autoplay=1&loop=1&playlist=${videoKey}&mute=${
-        isMuted ? 0 : 1
-      }&start=0`}
+        isMuted ? 1 : 0
+      }&start=7&controls=0&showinfo=0&rel=0&enablejsapi=1`}
       allow="autoplay; encrypted-media"
       allowFullScreen
     ></iframe>
