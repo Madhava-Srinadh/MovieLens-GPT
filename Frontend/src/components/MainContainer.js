@@ -9,7 +9,7 @@ import {
   addPopularMovies,
   addTopRatedMovies,
 } from "../utils/movieSlice";
-import { Volume2, VolumeX, Info, Loader2 } from "lucide-react";
+import { Volume2, VolumeX, Info } from "lucide-react";
 import VideoBackground from "./VideoBackground";
 import MoviePosters from "./MoviePosters";
 import MovieDetails from "./MovieDetails";
@@ -18,10 +18,15 @@ const MainContainer = ({ showMyList }) => {
   const [isMuted, setIsMuted] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Fetch movies for standard categories:
   useFetchMovies("now_playing", addNowPlayingMovies);
   useFetchMovies("popular", addPopularMovies);
   useFetchMovies("top_rated", addTopRatedMovies);
-  useMyListMoviesFetch(showMyList ? 1 : null);
+
+  // My List fetch – useMyListMoviesFetch now returns a loading flag.
+  const { loading: myListLoading } = useMyListMoviesFetch(
+    showMyList ? 1 : null
+  );
 
   const nowPlayingMovies = useSelector(
     (store) => store.movies?.nowPlayingMovies
@@ -29,6 +34,8 @@ const MainContainer = ({ showMyList }) => {
   const popularMovies = useSelector((store) => store.movies?.popularMovies);
   const topRatedMovies = useSelector((store) => store.movies?.topRatedMovies);
   const myListMovies = useSelector((store) => store.movies?.myListMovies);
+
+  // For GPT search movies, initial value is null (meaning no query made yet)
   const { gptMovies, loading: gptLoading } = useSelector((store) => store.gpt);
 
   const selectedMovie = useSelector(
@@ -48,6 +55,7 @@ const MainContainer = ({ showMyList }) => {
 
   return (
     <div className="absolute w-[100vw] h-[100vh] overflow-hidden flex flex-col">
+      {/* Background video */}
       <div className="absolute w-full h-[50vh] md:h-[100vh]">
         <VideoBackground
           videoKey={videoData?.key}
@@ -56,6 +64,7 @@ const MainContainer = ({ showMyList }) => {
         />
       </div>
 
+      {/* Overlay for movie info and lists */}
       <div className="absolute top-[50vh] bg-black bg-opacity-50 z-10 flex flex-col p-4 md:p-6 w-full">
         <div className="flex items-center gap-6 text-white mb-4">
           <h1 className="text-xl md:text-3xl font-bold">
@@ -80,33 +89,53 @@ const MainContainer = ({ showMyList }) => {
 
         <div className="h-[40vh] overflow-y-auto no-scrollbar scrollbar-thumb-gray-600 scrollbar-track-transparent p-2">
           <>
+            {/* --- GPT SEARCH MOVIES ---
+                Render GPT movies only after a query is made (gptMovies !== null).
+            */}
             {!showMyList && (
               <>
                 {gptLoading ? (
-                  <div className="flex justify-center items-center mt-10">
-                    <Loader2 className="text-white animate-spin" size={24} />
-                    <p className="text-white ml-2">Loading movies...</p>
-                  </div>
-                ) : gptMovies && gptMovies.length > 0 ? (
+                  // While loading, display dummy poster cards.
                   <MoviePosters
                     categoryLabel="Based on Recent Query"
                     category="gpt"
                     onSelect={selectMovie}
+                    loading={true}
                   />
-                ) : (
-                  <p className="text-white text-center mt-10">
-                    No movies found for your query.
-                  </p>
-                )}
+                ) : gptMovies !== null ? (
+                  gptMovies.length > 0 ? (
+                    <MoviePosters
+                      categoryLabel="Based on Recent Query"
+                      category="gpt"
+                      onSelect={selectMovie}
+                      loading={false}
+                    />
+                  ) : (
+                    <p className="text-white text-center mt-10">
+                      No movies found for your query.
+                    </p>
+                  )
+                ) : null}
               </>
             )}
+
+            {/* --- MY LIST MOVIES --- */}
             {showMyList ? (
-              myListMovies && myListMovies.length > 0 ? (
+              myListLoading ? (
                 <MoviePosters
                   categoryLabel="My List"
                   category="my_list"
                   isMyList={true}
                   onSelect={selectMovie}
+                  loading={true}
+                />
+              ) : myListMovies && myListMovies.length > 0 ? (
+                <MoviePosters
+                  categoryLabel="My List"
+                  category="my_list"
+                  isMyList={true}
+                  onSelect={selectMovie}
+                  loading={false}
                 />
               ) : (
                 <p className="text-white text-center mt-10">
@@ -115,38 +144,51 @@ const MainContainer = ({ showMyList }) => {
               )
             ) : (
               <>
+                {/* --- STANDARD CATEGORIES --- */}
                 {nowPlayingMovies && nowPlayingMovies.length > 0 ? (
                   <MoviePosters
                     categoryLabel="Now Playing"
                     category="now_playing"
                     onSelect={selectMovie}
+                    loading={false}
                   />
                 ) : (
-                  <p className="text-white text-center mt-10">
-                    Loading Now Playing movies...
-                  </p>
+                  <MoviePosters
+                    categoryLabel="Now Playing"
+                    category="now_playing"
+                    onSelect={selectMovie}
+                    loading={true}
+                  />
                 )}
                 {popularMovies && popularMovies.length > 0 ? (
                   <MoviePosters
                     categoryLabel="Popular"
                     category="popular"
                     onSelect={selectMovie}
+                    loading={false}
                   />
                 ) : (
-                  <p className="text-white text-center mt-10">
-                    Loading Popular movies...
-                  </p>
+                  <MoviePosters
+                    categoryLabel="Popular"
+                    category="popular"
+                    onSelect={selectMovie}
+                    loading={true}
+                  />
                 )}
                 {topRatedMovies && topRatedMovies.length > 0 ? (
                   <MoviePosters
                     categoryLabel="Top Rated"
                     category="top_rated"
                     onSelect={selectMovie}
+                    loading={false}
                   />
                 ) : (
-                  <p className="text-white text-center mt-10">
-                    Loading Top Rated movies...
-                  </p>
+                  <MoviePosters
+                    categoryLabel="Top Rated"
+                    category="top_rated"
+                    onSelect={selectMovie}
+                    loading={true}
+                  />
                 )}
               </>
             )}

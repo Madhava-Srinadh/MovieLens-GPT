@@ -9,7 +9,13 @@ import {
   addTopRatedMovies,
 } from "../utils/movieSlice";
 
-const MoviePosters = ({ onSelect, categoryLabel, category, isMyList }) => {
+const MoviePosters = ({
+  onSelect,
+  categoryLabel,
+  category,
+  isMyList,
+  loading,
+}) => {
   const [localPage, setLocalPage] = useState(1);
 
   const movies = useSelector((store) => {
@@ -75,7 +81,15 @@ const MoviePosters = ({ onSelect, categoryLabel, category, isMyList }) => {
           onWheel={handleWheel}
           style={{ touchAction: "pan-x" }}
         >
-          {display.length > 0 ? (
+          {loading ? (
+            // Render 5 skeleton cards for poster loading state
+            Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-[100px] h-[150px] md:w-[120px] md:h-[180px] bg-gray-700 rounded-lg animate-pulse"
+              />
+            ))
+          ) : display.length > 0 ? (
             display.map((movie) => (
               <img
                 key={movie.id}
@@ -88,7 +102,7 @@ const MoviePosters = ({ onSelect, categoryLabel, category, isMyList }) => {
           ) : (
             <p className="text-white">No movies available</p>
           )}
-          {localPage < effectiveTotal && (
+          {localPage < effectiveTotal && !loading && (
             <button
               className="flex items-center justify-center w-[100px] h-[150px]"
               onClick={handleNextPage}

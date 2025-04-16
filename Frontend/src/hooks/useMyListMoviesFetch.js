@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
 import validator from "validator";
 import { appendMyListMovies, setMyListTotalPages } from "../utils/movieSlice";
@@ -9,6 +9,7 @@ const useMyListMoviesFetch = (page = 1) => {
   const user = useSelector((store) => store.user);
   const fetchedPages = useRef(new Set());
   const totalPagesRef = useRef(1);
+  const [loading, setLoading] = useState(false);
 
   const getMyListMovies = useCallback(async () => {
     if (
@@ -19,6 +20,7 @@ const useMyListMoviesFetch = (page = 1) => {
     ) {
       return totalPagesRef.current;
     }
+    setLoading(true);
     try {
       const response = await axios.get(
         `https://movielens-gpt.onrender.com/api/mylist/${encodeURIComponent(
@@ -31,9 +33,11 @@ const useMyListMoviesFetch = (page = 1) => {
         dispatch(setMyListTotalPages(response.data.totalPages || 1));
       }
       fetchedPages.current.add(page);
+      setLoading(false);
       return response.data.totalPages || 1;
     } catch (error) {
       console.error("Error fetching my list movies:", error);
+      setLoading(false);
       return totalPagesRef.current;
     }
   }, [user, page, dispatch]);
@@ -49,7 +53,7 @@ const useMyListMoviesFetch = (page = 1) => {
     totalPagesRef.current = 1;
   }, [user?.email]);
 
-  return { totalPages: totalPagesRef.current };
+  return { totalPages: totalPagesRef.current, loading };
 };
 
 export default useMyListMoviesFetch;

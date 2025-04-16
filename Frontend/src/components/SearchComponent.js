@@ -12,26 +12,30 @@ const SearchComponent = () => {
   const [query, setQuery] = useState("");
 
   const debouncedSearch = useCallback(
-    debounce(
-      (fetchFn) => (q) => {
-        if (q) fetchFn(q);
-      },
-      500
-    ),
+    debounce((fn, q) => {
+      if (q.trim()) {
+        fn(q);
+      }
+    }, 500),
     []
   );
 
   const handleSearch = (e) => {
     const value = e.target.value;
     setQuery(value);
-    debouncedSearch(fetchGptMovies)(value);
+    if (value.trim() === "") {
+      // Clear results when query is empty
+      dispatch(setGptMovies({ movies: null, loading: false }));
+    } else {
+      debouncedSearch(fetchGptMovies, value);
+    }
   };
 
   const handleToggle = () => {
     dispatch(toggleShow());
     if (show) {
       setQuery("");
-      dispatch(setGptMovies({ movies: [], loading: false }));
+      dispatch(setGptMovies({ movies: null, loading: false }));
     }
   };
 

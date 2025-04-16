@@ -4,8 +4,8 @@ const gptSlice = createSlice({
   name: "gptShow",
   initialState: {
     show: false,
-    gptMovies: [],
-    loading: false, // Added for loading animation
+    gptMovies: null, // Initially no query has been made
+    loading: false,
   },
   reducers: {
     toggleShow: (state) => {
