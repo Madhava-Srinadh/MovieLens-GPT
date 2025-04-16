@@ -1,5 +1,6 @@
 import useFetchMovies from "../hooks/useFetchMovies";
 import { addPopularMovies } from "../utils/movieSlice";
 
-const usePopularMovies = () => useFetchMovies("popular", addPopularMovies);
+const usePopularMovies = (page) =>
+  useFetchMovies("popular", addPopularMovies, page);
 export default usePopularMovies;

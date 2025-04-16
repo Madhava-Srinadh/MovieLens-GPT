@@ -5,13 +5,15 @@ const gptSlice = createSlice({
   initialState: {
     show: false,
     gptMovies: [],
+    loading: false, // Added for loading animation
   },
   reducers: {
     toggleShow: (state) => {
       state.show = !state.show;
     },
     setGptMovies: (state, action) => {
-      state.gptMovies = action.payload;
+      state.gptMovies = action.payload.movies;
+      state.loading = action.payload.loading;
     },
   },
 });

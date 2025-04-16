@@ -1,5 +1,6 @@
 import useFetchMovies from "../hooks/useFetchMovies";
 import { addTopRatedMovies } from "../utils/movieSlice";
 
-const useTopRatedMovies = () => useFetchMovies("top_rated", addTopRatedMovies);
+const useTopRatedMovies = (page) =>
+  useFetchMovies("top_rated", addTopRatedMovies, page);
 export default useTopRatedMovies;

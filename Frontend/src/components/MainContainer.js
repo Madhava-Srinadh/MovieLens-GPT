@@ -3,13 +3,13 @@ import { useSelector } from "react-redux";
 import useGetVideo from "../hooks/useGetVideo";
 import useSelectMovie from "../hooks/useSelectMovie";
 import useFetchMovies from "../hooks/useFetchMovies";
-import useMyListMovies from "../hooks/useMyListMovies";
+import useMyListMoviesFetch from "../hooks/useMyListMoviesFetch";
 import {
   addNowPlayingMovies,
   addPopularMovies,
   addTopRatedMovies,
 } from "../utils/movieSlice";
-import { Volume2, VolumeX, Info } from "lucide-react";
+import { Volume2, VolumeX, Info, Loader2 } from "lucide-react";
 import VideoBackground from "./VideoBackground";
 import MoviePosters from "./MoviePosters";
 import MovieDetails from "./MovieDetails";
@@ -21,14 +21,15 @@ const MainContainer = ({ showMyList }) => {
   useFetchMovies("now_playing", addNowPlayingMovies);
   useFetchMovies("popular", addPopularMovies);
   useFetchMovies("top_rated", addTopRatedMovies);
+  useMyListMoviesFetch(showMyList ? 1 : null);
 
   const nowPlayingMovies = useSelector(
     (store) => store.movies?.nowPlayingMovies
   );
   const popularMovies = useSelector((store) => store.movies?.popularMovies);
   const topRatedMovies = useSelector((store) => store.movies?.topRatedMovies);
-  const gptMovies = useSelector((store) => store.gpt.gptMovies);
-  const { myListMovies, loading, error } = useMyListMovies(showMyList);
+  const myListMovies = useSelector((store) => store.movies?.myListMovies);
+  const { gptMovies, loading: gptLoading } = useSelector((store) => store.gpt);
 
   const selectedMovie = useSelector(
     (store) =>
@@ -78,70 +79,78 @@ const MainContainer = ({ showMyList }) => {
         </div>
 
         <div className="h-[40vh] overflow-y-auto no-scrollbar scrollbar-thumb-gray-600 scrollbar-track-transparent p-2">
-          {loading && (
-            <p className="text-white text-center mt-10">Loading your list...</p>
-          )}
-          {error && <p className="text-red-500 text-center mt-10">{error}</p>}
-          {!loading && !error && (
-            <>
-              {!showMyList && gptMovies && gptMovies.length > 0 && (
-                <MoviePosters
-                  movies={gptMovies}
-                  onSelect={selectMovie}
-                  categoryLabel="Based on Recent Query"
-                />
-              )}
-              {showMyList ? (
-                myListMovies && myListMovies.length > 0 ? (
+          <>
+            {!showMyList && (
+              <>
+                {gptLoading ? (
+                  <div className="flex justify-center items-center mt-10">
+                    <Loader2 className="text-white animate-spin" size={24} />
+                    <p className="text-white ml-2">Loading movies...</p>
+                  </div>
+                ) : gptMovies && gptMovies.length > 0 ? (
                   <MoviePosters
-                    movies={myListMovies}
+                    categoryLabel="Based on Recent Query"
+                    category="gpt"
                     onSelect={selectMovie}
-                    categoryLabel="My List"
                   />
                 ) : (
                   <p className="text-white text-center mt-10">
-                    No movies in your list yet.
+                    No movies found for your query.
                   </p>
-                )
+                )}
+              </>
+            )}
+            {showMyList ? (
+              myListMovies && myListMovies.length > 0 ? (
+                <MoviePosters
+                  categoryLabel="My List"
+                  category="my_list"
+                  isMyList={true}
+                  onSelect={selectMovie}
+                />
               ) : (
-                <>
-                  {nowPlayingMovies && nowPlayingMovies.length > 0 ? (
-                    <MoviePosters
-                      movies={nowPlayingMovies}
-                      onSelect={selectMovie}
-                      categoryLabel="Now Playing"
-                    />
-                  ) : (
-                    <p className="text-white text-center mt-10">
-                      Loading Now Playing movies...
-                    </p>
-                  )}
-                  {popularMovies && popularMovies.length > 0 ? (
-                    <MoviePosters
-                      movies={popularMovies}
-                      onSelect={selectMovie}
-                      categoryLabel="Popular"
-                    />
-                  ) : (
-                    <p className="text-white text-center mt-10">
-                      Loading Popular movies...
-                    </p>
-                  )}
-                  {topRatedMovies && topRatedMovies.length > 0 ? (
-                    <MoviePosters
-                      movies={topRatedMovies}
-                      onSelect={selectMovie}
-                      categoryLabel="Top Rated"
-                    />
-                  ) : (
-                    <p className="text-white text-center mt-10">
-                      Loading Top Rated movies...
-                    </p>
-                  )}
-                </>
-              )}
-            </>
-          )}
+                <p className="text-white text-center mt-10">
+                  No movies in your list yet.
+                </p>
+              )
+            ) : (
+              <>
+                {nowPlayingMovies && nowPlayingMovies.length > 0 ? (
+                  <MoviePosters
+                    categoryLabel="Now Playing"
+                    category="now_playing"
+                    onSelect={selectMovie}
+                  />
+                ) : (
+                  <p className="text-white text-center mt-10">
+                    Loading Now Playing movies...
+                  </p>
+                )}
+                {popularMovies && popularMovies.length > 0 ? (
+                  <MoviePosters
+                    categoryLabel="Popular"
+                    category="popular"
+                    onSelect={selectMovie}
+                  />
+                ) : (
+                  <p className="text-white text-center mt-10">
+                    Loading Popular movies...
+                  </p>
+                )}
+                {topRatedMovies && topRatedMovies.length > 0 ? (
+                  <MoviePosters
+                    categoryLabel="Top Rated"
+                    category="top_rated"
+                    onSelect={selectMovie}
+                  />
+                ) : (
+                  <p className="text-white text-center mt-10">
+                    Loading Top Rated movies...
+                  </p>
+                )}
+              </>
+            )}
+          </>
         </div>
       </div>
 
