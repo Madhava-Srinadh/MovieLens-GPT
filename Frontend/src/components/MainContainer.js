@@ -14,6 +14,9 @@ import VideoBackground from "./VideoBackground";
 import MoviePosters from "./MoviePosters";
 import MovieDetails from "./MovieDetails";
 
+// Change this value to offset the video if you have a header (set to 0 if you want it flush at the top)
+const headerOffset = 60; // example: header height 60px
+
 const MainContainer = ({ showMyList }) => {
   const [isMuted, setIsMuted] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
@@ -34,10 +37,9 @@ const MainContainer = ({ showMyList }) => {
   const popularMovies = useSelector((store) => store.movies?.popularMovies);
   const topRatedMovies = useSelector((store) => store.movies?.topRatedMovies);
   const myListMovies = useSelector((store) => store.movies?.myListMovies);
-
-  // For GPT search movies, initial value is null (meaning no query made yet)
   const { gptMovies, loading: gptLoading } = useSelector((store) => store.gpt);
 
+  // Select a movie (or fallback to the first movie from now playing)
   const selectedMovie = useSelector(
     (store) =>
       store.select?.selectedMovie || (nowPlayingMovies && nowPlayingMovies[0])
@@ -55,8 +57,11 @@ const MainContainer = ({ showMyList }) => {
 
   return (
     <div className="absolute w-[100vw] h-[100vh] overflow-hidden flex flex-col">
-      {/* Background video */}
-      <div className="absolute w-full h-[50vh] md:h-[100vh]">
+      {/* Background video container positioned starting from headerOffset */}
+      <div
+        className="absolute left-0 w-full h-[50vh] md:h-[100vh]"
+        style={{ top: `${headerOffset}px` }}
+      >
         <VideoBackground
           videoKey={videoData?.key}
           isMuted={isMuted}
@@ -64,8 +69,11 @@ const MainContainer = ({ showMyList }) => {
         />
       </div>
 
-      {/* Overlay for movie info and lists */}
-      <div className="absolute top-[50vh] bg-black bg-opacity-50 z-10 flex flex-col p-4 md:p-6 w-full">
+      {/* Overlay for movie info and lists starting from 50vh + headerOffset */}
+      <div
+        className="absolute left-0 bg-black bg-opacity-50 z-10 flex flex-col p-4 md:p-6 w-full"
+        style={{ top: `calc(50vh + ${headerOffset}px)` }}
+      >
         <div className="flex items-center gap-6 text-white mb-4">
           <h1 className="text-xl md:text-3xl font-bold">
             {selectedMovie?.title || "No Title"}
@@ -89,13 +97,10 @@ const MainContainer = ({ showMyList }) => {
 
         <div className="h-[40vh] overflow-y-auto no-scrollbar scrollbar-thumb-gray-600 scrollbar-track-transparent p-2">
           <>
-            {/* --- GPT SEARCH MOVIES ---
-                Render GPT movies only after a query is made (gptMovies !== null).
-            */}
+            {/* --- GPT SEARCH MOVIES --- */}
             {!showMyList && (
               <>
                 {gptLoading ? (
-                  // While loading, display dummy poster cards.
                   <MoviePosters
                     categoryLabel="Based on Recent Query"
                     category="gpt"
