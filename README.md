@@ -1,41 +1,52 @@
-# **MovieLens GPT 🎬🤖**  
-A **MERN-based** movie streaming app that integrates **TMDB API** for fetching movies, **OpenAI API** for AI-powered recommendations, and **MongoDB APIs** for managing user-specific movie lists.
+# **MovieLens GPT 🎬🤖**
 
-## **🚀 Features**  
+A **MERN-based** movie discovery application that integrates the **TMDB API** for fetching movie details, the **OpenAI API** for AI-powered recommendations, and **MongoDB APIs** for managing user-specific movie lists.
 
-### **Authentication**  
+## **Features**
+
+### **Authentication**
+
 - ✅ Login / Sign Up  
 - ✅ Firebase Authentication  
 - ✅ User Profile & Sign Out  
-- ✅ Redirect to Browse Page after authentication  
+- ✅ Redirects to Browse Page after authentication  
 
-### **Movie Browsing**  
-- ✅ Main Movie with Trailer Background  
+### **Movie Browsing**
+
+- ✅ Main Movie Display with Trailer Background  
 - ✅ Movie Lists (Trending, Popular, etc.)  
 - ✅ Movie Suggestions  
+- ✅ **Filter Movies** by genre, language, and region  
+- ✅ **Detailed Movie View** with description, release date, ratings, and trailer support  
 
-### **GPT (AI Movie Search)**  
-- ✅ AI-powered search bar  
-- ✅ Fetch AI-based movie suggestions  
-- ✅ Uses **GroqCloud API** + **TMDB API**  
+### **🤖 GPT (AI Movie Search)**
 
-### **My List**  
+- ✅ AI-powered movie search bar  
+- ✅ Fetch AI-generated movie suggestions  
+- ✅ Powered by **GroqCloud API** + **TMDB API**  
+
+### **My List**
+
 - ✅ User-specific movie lists (e.g., favorites, watchlist)  
-- ✅ Managed via **MongoDB APIs** (RESTful endpoints powered by Express.js and MongoDB)  
-- ✅ Stores and retrieves user data seamlessly  
+- ✅ Managed via **MongoDB APIs** (RESTful endpoints using Express.js + MongoDB)  
+- ✅ Persistent user data management  
 
-### **Additional Features**  
-- ✅ Responsive Design with **TailwindCSS**  
-- ✅ **Redux Store** for State Management  
-- ✅ **Environment Variables** (`.env`) for secure configuration  
+### **Additional Features**
 
-## **🌐 Live Demo**  
-Check out the live app: [MovieLens GPT](https://movielens18.web.app)  
+- ✅ Fully Responsive Design with **TailwindCSS**  
+- ✅ Global State Management via **Redux Store**  
+- ✅ Secure config using **Environment Variables** (`.env`)  
 
-## **📜 License**  
-This project is for **educational purposes only**. All rights to movie data belong to **TMDB**.  
+## **🌐 Live Demo**
 
-## **💡 Contributions**  
-Want to improve this project? Feel free to **fork and submit a PR!** 🎉  
+Check out the live app: [MovieLens GPT](https://movielens18.web.app)
 
-🔥 **Enjoy MovieLens GPT!** 🎬✨ 
+## **License**
+
+This project is for **educational purposes only**. All rights to movie data belong to **TMDB**.
+
+## **💡 Contributions**
+
+Want to improve this project? Feel free to **fork and submit a PR!** 🎉
+
+🔥 **Enjoy MovieLens GPT!** 🎬✨
