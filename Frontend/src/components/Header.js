@@ -1,5 +1,6 @@
+// src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { FaSearch, FaList, FaHome, FaTimes } from "react-icons/fa";
+import { FaSearch, FaList, FaHome, FaTimes, FaFilter } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,6 +17,8 @@ import { setSelectedMovie } from "../utils/selectSlice";
 import { toggleShow } from "../utils/gptSlice";
 import { Bot } from "lucide-react";
 import GptSearchPopup from "./GptSearchPopup";
+import FilterBar from "./FilterBar";
+import { setFilters } from "../utils/filterSlice";
 
 const Header = ({ setShowMyList, showMyList }) => {
   const navigate = useNavigate();
@@ -32,8 +35,10 @@ const Header = ({ setShowMyList, showMyList }) => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
   const searchRef = useRef(null);
   const profileRef = useRef(null);
+  const filterRef = useRef(null);
 
   const { fetchMovies } = useSearchMovie(searchValue, setSearchResults);
   const username = user?.email?.split("@")[0] || "Guest";
@@ -62,17 +67,32 @@ const Header = ({ setShowMyList, showMyList }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target) &&
+        !filterRef.current?.contains(event.target)
+      ) {
         setSearchResults([]);
         setIsSearching(false);
       }
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target) &&
+        !filterRef.current?.contains(event.target)
+      ) {
         setShowProfileMenu(false);
         setShowUpdatePassword(false);
         setError("");
         setSuccessMessage("");
         setOldPassword("");
         setNewPassword("");
+      }
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        !event.target.closest("[aria-label='Toggle filter options']")
+      ) {
+        setShowFilterPopup(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -153,6 +173,15 @@ const Header = ({ setShowMyList, showMyList }) => {
     dispatch(toggleShow());
   };
 
+  const handleApplyFilters = (filters) => {
+    dispatch(setFilters(filters));
+    setShowFilterPopup(false);
+  };
+
+  const toggleFilterPopup = () => {
+    setShowFilterPopup((prev) => !prev);
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full bg-black bg-opacity-70 px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between z-50 shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
@@ -175,7 +204,7 @@ const Header = ({ setShowMyList, showMyList }) => {
         {user && (
           <button
             onClick={handleToggle}
-            className="flex items-center gap-2 text-white text-sm sm:text-base px-3 py-2 rounded-lg bg-gray-800 border border-gray-600"
+            className="flex items-center gap-2 text-white text-sm sm:text-base px-3 py-2 rounded-lg bg-gray-800 border border-gray-600 hover:bg-gray-700 transition-all"
             aria-label={showMyList ? "Go to Home" : "Go to My List"}
           >
             {showMyList ? (
@@ -203,7 +232,7 @@ const Header = ({ setShowMyList, showMyList }) => {
               }`}
             >
               <FaSearch
-                className="text-gray-300 cursor-pointer"
+                className="text-gray-300 cursor-pointer hover:text-white"
                 onClick={() => setIsSearching(!isSearching)}
                 aria-label="Toggle search"
               />
@@ -220,7 +249,7 @@ const Header = ({ setShowMyList, showMyList }) => {
               />
               {searchValue && (
                 <FaTimes
-                  className="text-gray-400 cursor-pointer"
+                  className="text-gray-400 cursor-pointer hover:text-white"
                   onClick={() => {
                     setSearchValue("");
                     setSearchResults([]);
@@ -255,10 +284,19 @@ const Header = ({ setShowMyList, showMyList }) => {
             )}
           </div>
 
+          {/* Filter Button */}
+          <button
+            onClick={toggleFilterPopup}
+            className="text-white p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-200"
+            aria-label="Toggle filter options"
+          >
+            <FaFilter className="w-5 h-5" />
+          </button>
+
           {/* Bot Icon */}
           <Bot
             onClick={handleBotClick}
-            className="w-6 h-6 text-white cursor-pointer"
+            className="w-6 h-6 text-white cursor-pointer hover:text-gray-300 transition-all duration-200"
             aria-label="Open AI Search"
             title="AI Movie Finder"
           />
@@ -378,6 +416,18 @@ const Header = ({ setShowMyList, showMyList }) => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {showFilterPopup && (
+        <div
+          ref={filterRef}
+          className="absolute top-[60px] right-4 w-80 max-w-full bg-black/90 backdrop-blur-lg p-4 rounded-xl shadow-2xl z-50 animate-slide-down"
+        >
+          <FilterBar
+            onApplyFilters={handleApplyFilters}
+            onClose={() => setShowFilterPopup(false)}
+          />
         </div>
       )}
 

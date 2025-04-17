@@ -1,3 +1,4 @@
+// src/utils/movieSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const movieSlice = createSlice({
@@ -8,6 +9,9 @@ const movieSlice = createSlice({
     topRatedMovies: [],
     myListMovies: [],
     myListTotalPages: 1,
+    filteredMovies: [],
+    filteredTotalPages: 1,
+    preservedFilteredMovies: [],
   },
   reducers: {
     addNowPlayingMovies: (state, action) => {
@@ -57,6 +61,43 @@ const movieSlice = createSlice({
         (m) => m.id !== action.payload
       );
     },
+    appendFilteredMovies: (state, action) => {
+      const newMovies = action.payload.filter(
+        (newMovie) =>
+          !state.filteredMovies.some((movie) => movie.id === newMovie.id)
+      );
+      console.log("Appending filteredMovies:", newMovies);
+      state.filteredMovies = [...state.filteredMovies, ...newMovies];
+    },
+    setFilteredTotalPages: (state, action) => {
+      state.filteredTotalPages = action.payload;
+    },
+    clearFilteredMovies: (state) => {
+      console.log("Clearing filteredMovies, preserving:", state.filteredMovies);
+      state.preservedFilteredMovies = [...state.filteredMovies];
+      state.filteredMovies = [];
+      state.filteredTotalPages = 1;
+    },
+    restoreFilteredMovies: (state) => {
+      console.log(
+        "Restoring filteredMovies from:",
+        state.preservedFilteredMovies
+      );
+      if (state.preservedFilteredMovies.length > 0) {
+        state.filteredMovies = [...state.preservedFilteredMovies];
+        state.filteredTotalPages =
+          Math.ceil(state.preservedFilteredMovies.length / 20) || 1;
+        console.log(
+          "Restored filteredMovies:",
+          state.filteredMovies,
+          "Total pages:",
+          state.filteredTotalPages
+        );
+        state.preservedFilteredMovies = [];
+      } else {
+        console.log("No preservedFilteredMovies to restore");
+      }
+    },
   },
 });
 
@@ -68,5 +109,9 @@ export const {
   setMyListTotalPages,
   addToMyList,
   removeFromMyList,
+  appendFilteredMovies,
+  setFilteredTotalPages,
+  clearFilteredMovies,
+  restoreFilteredMovies,
 } = movieSlice.actions;
 export default movieSlice.reducer;
