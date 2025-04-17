@@ -61,7 +61,7 @@ const MoviePosters = ({
 
   const handleWheel = (e) => {
     e.currentTarget.scrollLeft += e.deltaY;
-    e.preventDefault();
+    // Removed e.preventDefault() to avoid passive event listener warning
   };
 
   const handleNextPage = () => {
@@ -70,14 +70,22 @@ const MoviePosters = ({
     }
   };
 
+  // Calculate half the poster height based on screen size
+  const getPosterHalfHeight = () => {
+    return window.innerWidth >= 768 ? 180 / 2 : 150 / 2; // 768px is Tailwind's md breakpoint
+  };
+
   return (
     <div className="flex flex-col gap-4 mt-4 relative">
       <h2 className="text-white text-xl md:text-2xl font-bold">
         {categoryLabel}
       </h2>
-      <div className="relative flex items-center">
+      <div
+        className="relative mb- flex items-center"
+        style={{ marginBottom: `${getPosterHalfHeight()}px` }} // Dynamic margin-bottom
+      >
         <div
-          className="flex flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar p-2 m-3 gap-8"
+          className="flex flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar p-2 mb-3 gap-8"
           onWheel={handleWheel}
           style={{ touchAction: "pan-x" }}
         >
@@ -97,6 +105,9 @@ const MoviePosters = ({
                 alt={movie.title || "Movie Poster"}
                 className="cursor-pointer w-[100px] h-[150px] md:w-[120px] md:h-[180px] rounded-lg hover:scale-110 transition-transform"
                 onClick={() => onSelect(movie)}
+                onError={(e) => {
+                  e.target.style.display = "none"; // Hide image on error to avoid broken image icons
+                }}
               />
             ))
           ) : (
