@@ -30,10 +30,10 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const BEARER = `Bearer ${process.env.TMDB_BEARER_TOKEN}`;
 
 // Generic proxy route for all TMDB endpoints
-app.get("/api/*", async (req, res) => {
-  const tmdbPath = req.path.replace(/^\/api/, "");
+app.get("/api/:path(*)", async (req, res) => {
+  const { path } = req.params;
   const queryParams = req.query;
-  const tmdbUrl = `${TMDB_BASE}${tmdbPath}${
+  const tmdbUrl = `${TMDB_BASE}/${path}${
     Object.keys(queryParams).length ? `?${new URLSearchParams(queryParams).toString()}` : ""
   }`;
 
