@@ -9,32 +9,32 @@ const app = express();
 const rawOrigins = process.env.CLIENT_ORIGINS || "";
 const ALLOWED_ORIGINS = rawOrigins
   .split(",")
-  .map((u) => u.trim())
+  .map(u => u.trim())
   .filter(Boolean);
 
 // CORS middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-      callback(new Error(`CORS Policy: Origin ${origin} not allowed`));
-    },
-  })
-);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS Policy: Origin ${origin} not allowed`));
+  }
+}));
 
 // Proxy settings
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const BEARER = `Bearer ${process.env.TMDB_BEARER_TOKEN}`;
 
-// ← Here’s the only change, use `(.*)` instead of `(*)`
-app.get("/api/:path(.*)", async (req, res) => {
-  const path = req.params.path;
+// ← Use a plain wildcard here, no parentheses at all
+app.get("/api/*", async (req, res) => {
+  // Option A: req.params[0] holds everything after `/api/`
+  const path = req.params[0];
+
+  // Option B: you could also do:
+  // const path = req.path.replace(/^\/api\//, "");
+
   const queryParams = req.query;
-  const tmdbUrl =
-    `${TMDB_BASE}/${path}` +
+  const tmdbUrl = `${TMDB_BASE}/${path}` +
     (Object.keys(queryParams).length
       ? `?${new URLSearchParams(queryParams).toString()}`
       : "");
