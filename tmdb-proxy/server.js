@@ -1,67 +1,26 @@
-require("dotenv").config();
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 
-// Parse CLIENT_ORIGINS
-const rawOrigins = process.env.CLIENT_ORIGINS || "";
-const ALLOWED_ORIGINS = rawOrigins
-  .split(",")
-  .map(u => u.trim())
-  .filter(Boolean);
-
-// CORS middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS Policy: Origin ${origin} not allowed`));
-  }
+// Middleware to proxy TMDB API requests
+app.use('/api', createProxyMiddleware({
+  target: 'https://api.themoviedb.org/3',
+  changeOrigin: true,
+  pathRewrite: { '^/api': '' }, // Remove '/api' prefix when forwarding
+  onProxyReq: (proxyReq) => {
+    // Add TMDB API authorization header
+    proxyReq.setHeader('Authorization', `Bearer ${process.env.TMDB_BEARER_TOKEN}`);
+    proxyReq.setHeader('accept', 'application/json');
+  },
 }));
 
-// Proxy settings
-const TMDB_BASE = "https://api.themoviedb.org/3";
-const BEARER = `Bearer ${process.env.TMDB_BEARER_TOKEN}`;
-
-// ← Use a plain wildcard here, no parentheses at all
-app.get("/api/*", async (req, res) => {
-  // Option A: req.params[0] holds everything after `/api/`
-  const path = req.params[0];
-
-  // Option B: you could also do:
-  // const path = req.path.replace(/^\/api\//, "");
-
-  const queryParams = req.query;
-  const tmdbUrl = `${TMDB_BASE}/${path}` +
-    (Object.keys(queryParams).length
-      ? `?${new URLSearchParams(queryParams).toString()}`
-      : "");
-
-  try {
-    const tmdbRes = await axios.get(tmdbUrl, {
-      params: queryParams,
-      headers: {
-        accept: "application/json",
-        Authorization: BEARER,
-      },
-    });
-    res.json(tmdbRes.data);
-  } catch (err) {
-    res
-      .status(err.response?.status || 500)
-      .json({ status_message: err.message });
-  }
+// Basic health check endpoint
+app.get('/', (req, res) => {
+  res.send('Proxy server is running');
 });
 
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", allowedOrigins: ALLOWED_ORIGINS });
-});
-
-// Start server
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`🎬 TMDB Proxy running on http://localhost:${port}`);
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
