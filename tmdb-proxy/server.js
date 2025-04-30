@@ -29,16 +29,15 @@ app.use(
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const BEARER = `Bearer ${process.env.TMDB_BEARER_TOKEN}`;
 
-// Generic proxy route for all TMDB endpoints
-app.get("/api/*", async (req, res) => {
-  // req.params[0] holds the wildcard portion after /api/
-  const path = req.params[0];
+// ← Here’s the only change, use `(.*)` instead of `(*)`
+app.get("/api/:path(.*)", async (req, res) => {
+  const path = req.params.path;
   const queryParams = req.query;
-  const tmdbUrl = `${TMDB_BASE}/${path}${
-    Object.keys(queryParams).length
+  const tmdbUrl =
+    `${TMDB_BASE}/${path}` +
+    (Object.keys(queryParams).length
       ? `?${new URLSearchParams(queryParams).toString()}`
-      : ""
-  }`;
+      : "");
 
   try {
     const tmdbRes = await axios.get(tmdbUrl, {
