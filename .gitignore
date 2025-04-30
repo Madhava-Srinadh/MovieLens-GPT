@@ -25,3 +25,8 @@
 # Backend exclusions
 /Backend/node_modules
 /Backend/.env
+
+/tmdb-proxy/node_modules
+
+/tmdb-proxy/.env
+firbase-debug.log
