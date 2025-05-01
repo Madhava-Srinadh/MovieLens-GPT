@@ -4,25 +4,8 @@ const cors = require("cors");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const app = express();
 
-// Parse CLIENT_ORIGINS
-const rawOrigins = process.env.CLIENT_ORIGINS || "";
-const ALLOWED_ORIGINS = rawOrigins
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
-
-// CORS middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS Policy: Origin ${origin} not allowed`));
-      }
-    },
-  })
-);
+// CORS middleware to allow all origins
+app.use(cors({ origin: "*" }));
 
 // Middleware to proxy TMDB API requests
 app.use(
