@@ -1,52 +1,94 @@
-# **MovieLens GPT 🎬🤖**
+# 🎮 MovieLens GPT 🤖
 
-A **MERN-based** movie discovery application that integrates the **TMDB API** for fetching movie details, the **OpenAI API** for AI-powered recommendations, and **MongoDB APIs** for managing user-specific movie lists.
+**MovieLens GPT** is a full-stack MERN application that blends movie discovery with AI-powered recommendations. It integrates the **TMDB API** for movie data, **OpenAI (GroqCloud)** for smart suggestions, **MongoDB** for user-specific lists, and **Firebase** for authentication.
 
-## **Features**
+---
 
-### **Authentication**
+## 🚀 Features
 
-- ✅ Login / Sign Up  
-- ✅ Firebase Authentication  
-- ✅ User Profile & Sign Out  
-- ✅ Redirects to Browse Page after authentication  
+### 🔐 Authentication
+- ✅ Login / Sign Up with Firebase Authentication
+- ✅ User Profile & Sign Out
+- ✅ Authenticated routes with redirection to Browse Page
 
-### **Movie Browsing**
+### 🎥 Movie Browsing
+- ✅ Hero section with trailer background
+- ✅ Movie lists: Trending, Popular, Upcoming, etc.
+- ✅ Movie filtering by genre, language, and region
+- ✅ Detailed view: title, overview, release date, ratings, trailer
 
-- ✅ Main Movie Display with Trailer Background  
-- ✅ Movie Lists (Trending, Popular, etc.)  
-- ✅ Movie Suggestions  
-- ✅ **Filter Movies** by genre, language, and region  
-- ✅ **Detailed Movie View** with description, release date, ratings, and trailer support  
+### 🤖 GPT (AI Movie Search)
+- ✅ Smart movie search via AI prompt
+- ✅ Fetch AI-generated movie recommendations
+- ✅ Powered by GroqCloud API + TMDB API
 
-### **🤖 GPT (AI Movie Search)**
+### 📂 My List
+- ✅ Personalized movie lists (Favorites, Watchlist)
+- ✅ Managed via Express.js REST APIs + MongoDB
+- ✅ Persistent across sessions
 
-- ✅ AI-powered movie search bar  
-- ✅ Fetch AI-generated movie suggestions  
-- ✅ Powered by **GroqCloud API** + **TMDB API**  
+### 🌐 UI & UX
+- ✅ Responsive design with TailwindCSS
+- ✅ Global state via Redux
+- ✅ Secure environment configurations (`.env`)
 
-### **My List**
+---
 
-- ✅ User-specific movie lists (e.g., favorites, watchlist)  
-- ✅ Managed via **MongoDB APIs** (RESTful endpoints using Express.js + MongoDB)  
-- ✅ Persistent user data management  
+## 🌍 Live Demo
 
-### **Additional Features**
+👉 [Visit MovieLens GPT](https://movielens18.web.app/)  
 
-- ✅ Fully Responsive Design with **TailwindCSS**  
-- ✅ Global State Management via **Redux Store**  
-- ✅ Secure config using **Environment Variables** (`.env`)  
+---
 
-## **🌐 Live Demo**
+## 💠 Tech Stack
 
-Check out the live app: [MovieLens GPT](https://movielens18.web.app)
+- **Frontend**: React.js, TailwindCSS, Redux
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Authentication**: Firebase Auth
+- **APIs**:
+  - TMDB API (Movie data)
+  - GroqCloud API (AI search)
+  - Custom MongoDB REST APIs
 
-## **License**
+---
 
-This project is for **educational purposes only**. All rights to movie data belong to **TMDB**.
+## 🔐 Proxy Setup
 
-## **💡 Contributions**
+A secure proxy server using Express.js is included for routing TMDB API calls:
+- Adds bearer token automatically
+- Supports CORS
+- Avoids direct client-side API key exposure
 
-Want to improve this project? Feel free to **fork and submit a PR!** 🎉
+> Located in `/tmdb-proxy/server.js`
 
-🔥 **Enjoy MovieLens GPT!** 🎬✨
+---
+
+## 📁 Directory Structure
+
+```
+├── client/               # React frontend
+├── server/               # Express + MongoDB backend
+├── tmdb-proxy/           # TMDB Proxy server
+├── .env                  # Environment variables
+├── firebase-debug.log    # Firebase logs
+└── README.md
+```
+
+---
+
+## 📜 License
+
+This project is for **educational purposes only**. All movie data belongs to [TMDB](https://www.themoviedb.org/).
+
+---
+
+## 💡 Contributions
+
+Want to contribute? Fork this repo, make your changes, and open a pull request! 🎉  
+Let’s make discovering movies even more fun and intelligent!
+
+---
+
+🔥 **Enjoy using MovieLens GPT!** 🎮✨
+
