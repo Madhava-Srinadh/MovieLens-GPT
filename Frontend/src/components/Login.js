@@ -1,3 +1,4 @@
+// src/components/Login.js
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { BG_IMG_URL } from "../utils/constants";
 import Header from "./Header";
@@ -91,7 +92,6 @@ const Login = () => {
   const oobCode = query.get("oobCode");
   const mode = query.get("mode");
 
-  // Updated redirectUrl logic based on current hostname
   const redirectUrl =
     window.location.hostname === "localhost"
       ? "http://localhost:3000"
@@ -734,6 +734,7 @@ const Login = () => {
                     Remember Me
                   </label>
                   <button
+                    type="button" // Prevent form submission
                     onClick={() => {
                       setShowForgotPassword(true);
                       setAuthState("signIn");

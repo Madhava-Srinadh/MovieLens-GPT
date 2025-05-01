@@ -1,3 +1,4 @@
+// src/components/MovieDetails.js
 import React, {
   useRef,
   useEffect,
@@ -9,21 +10,18 @@ import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import validator from "validator";
 import { addToMyList, removeFromMyList } from "../utils/movieSlice";
-import { options } from "../utils/constants";
+import { TMDB_BASE_URL, options } from "../utils/constants"; // Updated import
 import useMyListMoviesFetch from "../hooks/useMyListMoviesFetch";
 
 const MovieDetails = ({ movie, onClose }) => {
-  // References and hooks setup
   const detailsRef = useRef(null);
   const dispatch = useDispatch();
   const user = useSelector((store) => store.user);
   const myListMovies = useSelector((store) => store.movies.myListMovies);
-  // Kick off the fetch for My List movies (if needed)
   useMyListMoviesFetch();
 
-  // Component state
-  const [isLoading, setIsLoading] = useState(false); // for add/remove list actions
-  const [loading, setLoading] = useState(true); // for extended details fetch
+  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [extendedDetails, setExtendedDetails] = useState(null);
   const [images, setImages] = useState([]);
   const [credits, setCredits] = useState(null);
@@ -34,33 +32,28 @@ const MovieDetails = ({ movie, onClose }) => {
 
   const movieId = movie?.id;
 
-  // --- HANDLE CLICK OUTSIDE TO CLOSE MODAL ---
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
         onClose();
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-  // --- FETCH EXTENDED MOVIE DATA ---
   useEffect(() => {
     if (!movieId) return;
 
     const fetchExtendedData = async () => {
       setLoading(true);
       try {
-        // Build URLs for all endpoints
-        const detailsUrl = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`;
-        const imagesUrl = `https://api.themoviedb.org/3/movie/${movieId}/images`;
-        const creditsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?language=en-US`;
-        const reviewsUrl = `https://api.themoviedb.org/3/movie/${movieId}/reviews?language=en-US&page=1`;
-        const providersUrl = `https://api.themoviedb.org/3/movie/${movieId}/watch/providers`;
+        const detailsUrl = `${TMDB_BASE_URL}/movie/${movieId}?language=en-US`;
+        const imagesUrl = `${TMDB_BASE_URL}/movie/${movieId}/images`;
+        const creditsUrl = `${TMDB_BASE_URL}/movie/${movieId}/credits?language=en-US`;
+        const reviewsUrl = `${TMDB_BASE_URL}/movie/${movieId}/reviews?language=en-US&page=1`;
+        const providersUrl = `${TMDB_BASE_URL}/movie/${movieId}/watch/providers`;
 
-        // Request all data concurrently
         const responses = await Promise.all([
           fetch(detailsUrl, options),
           fetch(imagesUrl, options),
@@ -69,7 +62,6 @@ const MovieDetails = ({ movie, onClose }) => {
           fetch(providersUrl, options),
         ]);
 
-        // Convert all responses to JSON
         const [
           detailsData,
           imagesData,
@@ -78,14 +70,12 @@ const MovieDetails = ({ movie, onClose }) => {
           providersData,
         ] = await Promise.all(responses.map((res) => res.json()));
 
-        // Set the fetched data into state
         setExtendedDetails(detailsData);
         setImages(imagesData.backdrops || []);
         setCredits(creditsData);
         setReviews(reviewsData.results || []);
         setProviders(providersData.results || {});
       } catch (err) {
-        console.error("Error fetching extended details:", err);
         setError(err);
       } finally {
         setLoading(false);
@@ -95,7 +85,6 @@ const MovieDetails = ({ movie, onClose }) => {
     fetchExtendedData();
   }, [movieId]);
 
-  // --- CHECK WHETHER THE MOVIE IS IN THE USER'S LIST ---
   const isMovieInList = useCallback(() => {
     return (
       Array.isArray(myListMovies) &&
@@ -103,7 +92,6 @@ const MovieDetails = ({ movie, onClose }) => {
     );
   }, [myListMovies, movie]);
 
-  // --- HANDLERS FOR ADDING/REMOVING MOVIE FROM THE LIST ---
   const handleAddToList = async () => {
     if (
       !user ||
@@ -130,7 +118,6 @@ const MovieDetails = ({ movie, onClose }) => {
       });
       dispatch(addToMyList(movieData));
     } catch (error) {
-      // You may want to handle errors properly
     } finally {
       setIsLoading(false);
     }
@@ -149,23 +136,18 @@ const MovieDetails = ({ movie, onClose }) => {
       );
       dispatch(removeFromMyList(movie.id));
     } catch (error) {
-      // Silently fail or log error
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- RENDER WATCH PROVIDERS (LIMIT 4 UNIQUE PROVIDERS) ---
   const renderProviders = useMemo(() => {
     if (!providers || Object.keys(providers).length === 0) return null;
-
     const firstRegion = Object.keys(providers)[0];
     const regionData = providers[firstRegion];
-
     if (!regionData?.flatrate && !regionData?.rent && !regionData?.buy)
       return null;
 
-    // Filter for unique providers across all categories
     const seen = new Set();
     const uniqueProviders = [
       ...(regionData.flatrate || []),
@@ -177,7 +159,7 @@ const MovieDetails = ({ movie, onClose }) => {
         seen.add(provider.provider_id);
         return true;
       })
-      .slice(0, 4); // Limit to 4 providers
+      .slice(0, 4);
 
     if (uniqueProviders.length === 0) return null;
 
@@ -205,7 +187,6 @@ const MovieDetails = ({ movie, onClose }) => {
     );
   }, [providers]);
 
-  // --- LOADING AND ERROR STATES FOR EXTENDED DATA ---
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
@@ -244,10 +225,8 @@ const MovieDetails = ({ movie, onClose }) => {
     );
   }
 
-  // --- MAIN MOVIE DETAILS CONTENT ---
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4">
-      {/* Global styles for hiding scrollbars */}
       <style>
         {`
           .no-scrollbar {
@@ -263,7 +242,6 @@ const MovieDetails = ({ movie, onClose }) => {
         ref={detailsRef}
         className="relative w-full max-w-2xl bg-black bg-opacity-80 p-6 rounded-xl text-white shadow-2xl backdrop-blur-lg overflow-y-auto max-h-[90vh] no-scrollbar"
       >
-        {/* --- Basic Movie Details --- */}
         <div className="flex flex-col gap-4">
           {extendedDetails?.poster_path && (
             <img
@@ -305,7 +283,6 @@ const MovieDetails = ({ movie, onClose }) => {
                   : "N/A"}
               </p>
             </div>
-            {/* --- Add / Remove from My List Button --- */}
             <button
               className={`w-full py-2 px-4 rounded-lg font-semibold text-white transition-transform transform flex items-center justify-center mb-2 ${
                 isMovieInList()
@@ -349,7 +326,6 @@ const MovieDetails = ({ movie, onClose }) => {
                 "Add to My List"
               )}
             </button>
-            {/* --- Toggle for Additional Details --- */}
             {!showMore && (
               <button
                 onClick={() => setShowMore(true)}
@@ -361,10 +337,8 @@ const MovieDetails = ({ movie, onClose }) => {
           </div>
         </div>
 
-        {/* --- Additional Information Section --- */}
         {showMore && (
           <div className="mt-6 space-y-6">
-            {/* --- Images Carousel --- */}
             {images.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Images</h3>
@@ -380,8 +354,6 @@ const MovieDetails = ({ movie, onClose }) => {
                 </div>
               </div>
             )}
-
-            {/* --- Cast Section --- */}
             {credits?.cast && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Cast</h3>
@@ -413,8 +385,6 @@ const MovieDetails = ({ movie, onClose }) => {
                 </div>
               </div>
             )}
-
-            {/* --- Watch Providers Section --- */}
             {renderProviders && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">
@@ -423,8 +393,6 @@ const MovieDetails = ({ movie, onClose }) => {
                 {renderProviders}
               </div>
             )}
-
-            {/* --- Reviews Section --- */}
             {reviews.length > 0 && (
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Reviews</h3>

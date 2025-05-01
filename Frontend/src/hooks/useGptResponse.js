@@ -1,7 +1,8 @@
+// src/hooks/useGptResponse.js
 import { useDispatch } from "react-redux";
 import openai from "../utils/openai";
 import { setGptMovies } from "../utils/gptSlice";
-import { options } from "../utils/constants";
+import { TMDB_BASE_URL, options } from "../utils/constants"; // Updated import
 import languages from "../utils/languages.json";
 import countries from "../utils/countries.json";
 
@@ -85,7 +86,7 @@ Use full English names for "language" (e.g., "Telugu") and "region" (e.g., "Indi
           ...(year && { year: String(year) }),
         });
 
-        const url = `https://api.themoviedb.org/3/search/movie?${searchParams.toString()}`;
+        const url = `${TMDB_BASE_URL}/search/movie?${searchParams.toString()}`;
 
         try {
           const searchResponse = await fetch(url, { ...options, signal });
@@ -95,7 +96,7 @@ Use full English names for "language" (e.g., "Telugu") and "region" (e.g., "Indi
           for (const result of searchData.results || []) {
             if (!result.id) continue;
 
-            const detailsUrl = `https://api.themoviedb.org/3/movie/${result.id}?language=${languageCode}`;
+            const detailsUrl = `${TMDB_BASE_URL}/movie/${result.id}?language=${languageCode}`;
             const detailsResponse = await fetch(detailsUrl, {
               ...options,
               signal,

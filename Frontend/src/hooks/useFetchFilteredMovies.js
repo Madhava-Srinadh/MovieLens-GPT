@@ -1,4 +1,3 @@
-// src/hooks/useFetchFilteredMovies.js
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -7,7 +6,7 @@ import {
   setFilteredTotalPages,
   clearFilteredMovies,
 } from "../utils/movieSlice";
-import { options } from "../utils/constants";
+import { TMDB_BASE_URL, options } from "../utils/constants";
 
 const useFetchFilteredMovies = (filters, page = 1) => {
   const [loading, setLoading] = useState(false);
@@ -17,6 +16,8 @@ const useFetchFilteredMovies = (filters, page = 1) => {
   const prevFiltersRef = useRef(filters);
   const loadedPagesRef = useRef(new Set());
 
+  const filteredLength = filteredMovies.length;
+
   useEffect(() => {
     const isFiltersEmpty =
       !filters ||
@@ -24,43 +25,28 @@ const useFetchFilteredMovies = (filters, page = 1) => {
         !filters.with_original_language &&
         !filters.with_origin_country);
 
-    // Check if filters have changed
     const filtersChanged =
       JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
 
-    console.log(
-      "useFetchFilteredMovies: filtersChanged=",
-      filtersChanged,
-      "filters=",
-      filters,
-      "page=",
-      page
-    );
+    
 
-    // Clear and reset when filters change
     if (filtersChanged) {
-      console.log("Filters changed, clearing filteredMovies");
       dispatch(clearFilteredMovies());
       loadedPagesRef.current.clear();
       prevFiltersRef.current = filters;
     }
 
-    // Skip if filteredMovies is restored, filters haven't changed, and page is loaded
     if (
       !filtersChanged &&
-      filteredMovies.length > 0 &&
+      filteredLength > 0 &&
       loadedPagesRef.current.has(page)
     ) {
-      console.log(
-        `Skipping fetch, restored filteredMovies for page ${page}, length:`,
-        filteredMovies.length
-      );
+      
       setLoading(false);
       return;
     }
 
-    if (isFiltersEmpty && filteredMovies.length === 0) {
-      console.log("No filters applied and no filteredMovies, resetting");
+    if (isFiltersEmpty && filteredLength === 0) {
       dispatch(clearFilteredMovies());
       loadedPagesRef.current.clear();
       setLoading(false);
@@ -68,9 +54,7 @@ const useFetchFilteredMovies = (filters, page = 1) => {
       return;
     }
 
-    // Skip fetching if page is already loaded and filters haven't changed
     if (!filtersChanged && loadedPagesRef.current.has(page)) {
-      console.log(`Skipping fetch for page ${page}, already loaded`);
       setLoading(false);
       return;
     }
@@ -89,32 +73,19 @@ const useFetchFilteredMovies = (filters, page = 1) => {
           with_original_language: filters.with_original_language || undefined,
         };
 
-        console.log(
-          "Fetching movies for page:",
-          page,
-          "Params:",
-          discoverParams
-        );
         const discoverResponse = await axios.get(
-          "https://api.themoviedb.org/3/discover/movie",
+          `${TMDB_BASE_URL}/discover/movie`,
           {
             ...options,
             params: discoverParams,
           }
         );
 
-        console.log(
-          "Discover API response for page",
-          page,
-          ":",
-          discoverResponse.data
-        );
 
         dispatch(appendFilteredMovies(discoverResponse.data.results || []));
         dispatch(setFilteredTotalPages(discoverResponse.data.total_pages || 1));
         loadedPagesRef.current.add(page);
       } catch (err) {
-        console.error("Error fetching filtered movies:", err.response || err);
         setError(
           err.response?.status === 401
             ? "Invalid Bearer token. Check REACT_APP_BEARER_TOKEN."
@@ -128,8 +99,7 @@ const useFetchFilteredMovies = (filters, page = 1) => {
     };
 
     fetchFiltered();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, page, dispatch]);
+  }, [filters, page, dispatch, filteredLength]);
 
   return { loading, error };
 };

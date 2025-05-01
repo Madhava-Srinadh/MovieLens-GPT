@@ -1,5 +1,6 @@
+// src/hooks/useGetVideo.js
 import { useDispatch } from "react-redux";
-import { options } from "../utils/constants";
+import { TMDB_BASE_URL, options } from "../utils/constants"; // Updated import
 import { setSelectVideo } from "../utils/selectSlice";
 import { useEffect } from "react";
 
@@ -11,17 +12,15 @@ const useGetVideo = (movieId, movieName, releaseYear) => {
   useEffect(() => {
     const fetchVideo = async () => {
       if (!movieId && !movieName) {
-        console.warn("🚫 Missing movieId and movieName.");
         return;
       }
 
       try {
         let trailerVideo = null;
 
-        // 1️⃣ Try TMDB
         if (movieId) {
           const res = await fetch(
-            `https://api.themoviedb.org/3/movie/${movieId}/videos?language=en-US`,
+            `${TMDB_BASE_URL}/movie/${movieId}/videos?language=en-US`,
             options
           );
           const json = await res.json();
@@ -37,7 +36,6 @@ const useGetVideo = (movieId, movieName, releaseYear) => {
           }
         }
 
-        // 2️⃣ Fallback to YouTube
         if (!trailerVideo && movieName && YOUTUBE_API_KEY) {
           const query = `${movieName} ${releaseYear || ""} Official Trailer`;
           const youtubeRes = await fetch(
@@ -56,17 +54,14 @@ const useGetVideo = (movieId, movieName, releaseYear) => {
               type: "Trailer",
             };
           } else {
-            console.warn("❌ No video found on YouTube.");
           }
         }
 
         if (trailerVideo) {
           dispatch(setSelectVideo(trailerVideo));
         } else {
-          console.warn("❌ No trailer found from TMDB or YouTube.");
         }
       } catch (err) {
-        console.error("❌ Error fetching video:", err);
       }
     };
 

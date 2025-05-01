@@ -45,14 +45,11 @@ const MainContainer = ({ showMyList }) => {
   }, [filters]);
 
   useEffect(() => {
-    console.log("showMyList changed:", showMyList);
     if (showMyList) {
-      console.log("Clearing gptMovies, filteredMovies, and filters");
       dispatch(clearGptMovies());
       dispatch(clearFilteredMovies());
       dispatch(clearFilters());
     } else {
-      console.log("Restoring gptMovies, filteredMovies, and filters");
       dispatch(restoreGptMovies());
       dispatch(restoreFilteredMovies());
       dispatch(restoreFilters());

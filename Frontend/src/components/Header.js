@@ -105,7 +105,7 @@ const Header = ({ setShowMyList, showMyList }) => {
         dispatch(removeUser());
         navigate("/");
       })
-      .catch((error) => console.error("Sign out error:", error));
+      .catch((error) => {});
   };
 
   const handleUpdatePassword = async (e) => {
@@ -138,7 +138,6 @@ const Header = ({ setShowMyList, showMyList }) => {
         setNewPassword("");
       }, 2000);
     } catch (error) {
-      console.error("Update password error:", error.code, error.message);
       switch (error.code) {
         case "auth/wrong-password":
           setError("Incorrect old password.");

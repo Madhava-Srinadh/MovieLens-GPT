@@ -1,4 +1,4 @@
-// src/components/MoviePosters.jsx
+// src/components/MoviePosters.js
 import React, { useState, useEffect } from "react";
 import { ArrowRightCircle } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -90,9 +90,8 @@ const MoviePosters = ({
     }
   };
 
-  // Calculate half the poster height based on screen size
   const getPosterHalfHeight = () => {
-    return window.innerWidth >= 768 ? 180 / 3 : 150 / 3; // 768px is Tailwind's md breakpoint
+    return window.innerWidth >= 768 ? 180 / 3 : 150 / 3;
   };
 
   return (
@@ -110,7 +109,6 @@ const MoviePosters = ({
           style={{ touchAction: "pan-x" }}
         >
           {loading ? (
-            // Render 5 skeleton cards for poster loading state
             Array.from({ length: 5 }).map((_, index) => (
               <div
                 key={index}
@@ -126,7 +124,7 @@ const MoviePosters = ({
                 className="cursor-pointer w-[100px] h-[150px] md:w-[120px] md:h-[180px] rounded-lg hover:scale-110 transition-transform"
                 onClick={() => onSelect(movie)}
                 onError={(e) => {
-                  e.target.style.display = "none"; // Hide image on error
+                  e.target.style.display = "none";
                 }}
               />
             ))

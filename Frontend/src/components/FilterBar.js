@@ -73,9 +73,7 @@ const FilterBar = ({ onClose }) => {
       with_original_language: selectedLanguage.iso_639_1,
       with_origin_country: selectedCountry.iso_3166_1,
     };
-    console.log("Applying filters, clearing gptMovies");
     dispatch(clearGptMovies());
-    console.log("Dispatched filters:", filterPayload);
     dispatch(setFilters(filterPayload));
     onClose();
   };

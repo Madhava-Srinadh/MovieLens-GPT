@@ -36,7 +36,6 @@ const useMyListMoviesFetch = (page = 1) => {
       setLoading(false);
       return response.data.totalPages || 1;
     } catch (error) {
-      console.error("Error fetching my list movies:", error);
       setLoading(false);
       return totalPagesRef.current;
     }
