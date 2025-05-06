@@ -1,4 +1,3 @@
-// src/components/MainContainer.jsx
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import useGetVideo from "../hooks/useGetVideo";
@@ -15,7 +14,7 @@ import {
 } from "../utils/movieSlice";
 import { clearFilters, restoreFilters } from "../utils/filterSlice";
 import { clearGptMovies, restoreGptMovies } from "../utils/gptSlice";
-import { Volume2, VolumeX, Info } from "lucide-react";
+import { Volume2, VolumeX, Info, MessageCircle } from "lucide-react";
 import VideoBackground from "./VideoBackground";
 import MoviePosters from "./MoviePosters";
 import MovieDetails from "./MovieDetails";
@@ -26,6 +25,7 @@ const MainContainer = ({ showMyList }) => {
   const [isMuted, setIsMuted] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showChatbot, setShowChatbot] = useState(false);
   const dispatch = useDispatch();
 
   const filters = useSelector((state) => state.filters);
@@ -299,6 +299,50 @@ const MainContainer = ({ showMyList }) => {
           movie={selectedMovie}
           onClose={() => setShowDetails(false)}
         />
+      )}
+
+      {/* Support Icon */}
+      <button
+        onClick={() => setShowChatbot(!showChatbot)}
+        className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 z-20"
+        title="Support Chat"
+      >
+        <MessageCircle size={24} />
+      </button>
+
+      {/* Chatbot Section */}
+      {showChatbot && (
+        <div className="fixed bottom-16 right-4 w-96 h-[70vh] bg-gray-900 bg-opacity-95 rounded-lg shadow-xl z-20 flex flex-col">
+          <div className="flex justify-between items-center p-4 border-b border-gray-700">
+            <h3 className="text-lg font-semibold text-white">
+              MovieLens GPT Support
+            </h3>
+            <button
+              onClick={() => setShowChatbot(false)}
+              className="text-gray-400 hover:text-white"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <iframe
+            src="http://localhost:8501/" // Replace with your Streamlit app URL after deployment
+            className="flex-1 w-full h-full rounded-b-lg"
+            title="MovieLens GPT Chatbot"
+            allow="clipboard-write"
+          />
+        </div>
       )}
     </div>
   );

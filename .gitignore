@@ -21,7 +21,6 @@
 /Frontend/npm-debug.log*
 /Frontend/yarn-debug.log*
 /Frontend/yarn-error.log*
-
 # Backend exclusions
 /Backend/node_modules
 /Backend/.env
@@ -29,4 +28,9 @@
 /tmdb-proxy/node_modules
 
 /tmdb-proxy/.env
-firbase-debug.log
+/firbase-debug.log
+
+/movielens-gpt-chatbot/.env
+/movielens-gpt-chatbot/__pycache__/
+/movielens-gpt-chatbot/*.pyc
+/movielens-gpt-chatbot/venv/
