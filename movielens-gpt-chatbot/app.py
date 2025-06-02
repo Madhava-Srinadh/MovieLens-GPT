@@ -44,7 +44,7 @@ documents = [Document(page_content=chunk, metadata={"source": "project_documenta
 
 # Initialize language model and embeddings
 try:
-    llm = ChatGroq(groq_api_key=groq_api_key, model="Llama3-8b-8192")
+    llm = ChatGroq(groq_api_key=groq_api_key, model="llama-3.3-70b-versatile")
 except Exception as e:
     st.error(f"Failed to initialize LLM: {str(e)}. Please verify GROQ_API_KEY in .env.")
     st.stop()
