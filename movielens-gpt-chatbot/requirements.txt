@@ -5,3 +5,4 @@ langchain-huggingface
 python-dotenv
 langchain-community
 faiss-cpu
+sentence_transformers
