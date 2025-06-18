@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
+import sentence_transformers
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
