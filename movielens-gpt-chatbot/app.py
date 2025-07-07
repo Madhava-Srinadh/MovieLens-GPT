@@ -51,7 +51,7 @@ except Exception as e:
     st.stop()
 
 try:
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2", model_kwargs={"device": "cpu"})
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 except Exception as e:
     st.error(f"Failed to initialize embeddings: {str(e)}. Please check HF_TOKEN or model availability.")
     st.stop()
